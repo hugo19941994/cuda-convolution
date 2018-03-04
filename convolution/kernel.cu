@@ -19,19 +19,20 @@ __global__ void convolution(float *d_img, float *d_img_conv, int width, int heig
 	if (i >= height || j >= width) {
 		return;
 	}
+	// TODO pass instead of hardcoding. Maybe from a file??
+	int size = 7; // Only odd numbers
+	int mat[9] = { 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9 };
 
 	float accumulator = 0;
-	accumulator += d_img[(width * height * z) + (i * width - 1) + j - 1] * 1/9;
-	accumulator += d_img[(width * height * z) + (i * width - 1) + j] * 1/9;
-	accumulator += d_img[(width * height * z) + (i * width - 1) + j + 1] * 1/9;
 
-	accumulator += d_img[(width * height * z) + (i * width) + j - 1] * 1/9;
-	accumulator += d_img[(width * height * z) + (i * width) + j] * 1/9;
-	accumulator += d_img[(width * height * z) + (i * width) + j + 1] * 1/9;
-
-	accumulator += d_img[(width * height * z) + (i * width + 1) + j - 1] * 1/9;
-	accumulator += d_img[(width * height * z) + (i * width + 1) + j] * 1/9;
-	accumulator += d_img[(width * height * z) + (i * width + 1) + j + 1] * 1/9;
+	int s = (size - 1) / 2;
+	int ac = 0;
+	for (int k = -s; k <= s; ++k) {
+		for (int l = -s; l <= s; ++l) {
+			accumulator += d_img[(width * height * z) + (i * width + k) + j + l] * 1/49;
+			ac++;
+		}
+	}
 
 	d_img_conv[(width * height * z) + i * width + j] = accumulator;
 }
